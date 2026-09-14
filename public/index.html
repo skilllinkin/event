@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nowshera Events Co. - Attendee Journey</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #0f172a; }
+        header { background: #0f172a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .nav-links button { background: transparent; color: #94a3b8; border: none; font-weight: 600; cursor: pointer; margin-left: 15px; }
+        .nav-links button.active, .nav-links button:hover { color: white; }
+        .hero { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 60px 30px; text-align: center; }
+        .hero h2 { margin: 0 0 10px 0; font-size: 32px; font-weight: 800; }
+        .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .section-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .event-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .card { background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .badge { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 10px; }
+        .event-title { font-size: 20px; font-weight: 700; margin: 0 0 10px 0; }
+        .event-meta { font-size: 14px; color: #64748b; margin-bottom: 15px; }
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; text-align: center; }
+        .btn-reg { background: #2563eb; color: white; }
+        .btn-reg:hover { background: #1d4ed8; }
+        .btn-cancel { background: #ef4444; color: white; }
+        .btn-cancel:hover { background: #dc2626; }
+        .btn-disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
+        .auth-notice { background: #fff; border: 1px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 8px; color: #64748b; }
+        .auth-notice a { color: #2563eb; font-weight: 600; text-decoration: none; }
+        .reg-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 12px; }
+        .reg-item .btn-cancel { width: auto; padding: 8px 14px; font-size: 13px; }
+        .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 20px; border-radius: 8px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Component -->
+    <header>
+        <h1>Nowshera Events Co.</h1>
+        <div class="nav-links">
+            <span id="user-display" style="color: #94a3b8; font-weight: 600; margin-right: 15px;"></span>
+            <button onclick="window.location.href='auth.html'" id="auth-nav-btn">Sign In / Join</button>
+            <button onclick="logout()" id="logout-btn" style="display:none;">Sign Out</button>
+        </div>
+    </header>
+
+    <!-- Visual Hero Section -->
+    <div class="hero">
+        <h2>✨ Discover your next experience.</h2>
+        <p style="color: #94a3b8; margin: 0;">High-performance attendee event management system for seamless reservation.</p>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="main-container">
+
+        <!-- Left Side: Event Discovery Module -->
+        <div>
+            <div class="section-title">🌐 EXPLORE ALL UPCOMING EVENTS</div>
+            <div id="public-events-feed" class="event-grid">Querying active events pipeline...</div>
+        </div>
+
+        <!-- Right Side: Personalized Ticket Itinerary Panel -->
+        <div>
+            <div class="section-title">🎫 My Registrations</div>
+            <div id="personal-roster-box">
+                <div class="auth-notice">
+                    <p>Log in or create an attendee account to view and manage your reserved event passes.</p>
+                    <a href="auth.html">Sign In / Join Now ➔</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ========================================================
+        // CONFIG
+        // ========================================================
+        const API_BASE = '';
+
+        // ========================================================
+        // SESSION STATE
+        // ========================================================
+        const token    = localStorage.getItem('token');
+        const userRole = localStorage.getItem('role');
+        const userName = localStorage.getItem('name');
+
+        // ========================================================
+        // BOOT
+        // ========================================================
+        function initSession() {
+            if (token && userRole === 'attendee') {
+                document.getElementById('user-display').innerText = `👤 ${userName}`;
+                document.getElementById('auth-nav-btn').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'inline-block';
+                loadPersonalItinerary();
+            }
+            loadPublicDiscoveryFeed();
+        }
+
+        // ========================================================
+        // UTILITY
+        // ========================================================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ========================================================
+        // MODULE: PUBLIC DISCOVERY FEED
+        // ========================================================
+        async function loadPublicDiscoveryFeed() {
+            const feedContainer = document.getElementById('public-events-feed');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/events`);
+                const events = await res.json();
+
+                if (!Array.isArray(events) || events.length === 0) {
+                    feedContainer.innerHTML = `
+                        <div class="card" style="text-align:center; color:#64748b;">
+                            <h3>No Matching Events Found</h3>
+                            <p>Check back later for newly scheduled conferences, seminars, and interactive workshops.</p>
+                        </div>`;
+                    return;
+                }
+
+                feedContainer.innerHTML = events.map(e => {
+                    const remainingSeats = e.capacity - e.registeredCount;
+                    let actionButton = '';
+
+                    if (!token) {
+                        actionButton = `<button class="btn-action btn-reg" onclick="window.location.href='auth.html'">Sign In to Register</button>`;
+                    } else if (userRole !== 'attendee') {
+                        actionButton = `<button class="btn-action btn-disabled" disabled>Admins Cannot Book Passes</button>`;
+                    } else if (remainingSeats <= 0) {
+                        actionButton = `<button class="btn-action btn-disabled" disabled>FULLY BOOKED (0 Seats Left)</button>`;
+                    } else {
+                        actionButton = `<button class="btn-action btn-reg" onclick="reserveTicket('${e._id}')">Reserve Instant RSVP Pass</button>`;
+                    }
+
+                    return `
+                        <div class="card">
+                            <span class="badge">🛠 Available Opportunity</span>
+                            <h3 class="event-title">${escapeHtml(e.title)}</h3>
+                            <div class="event-meta">
+                                📅 <strong>Date:</strong> ${new Date(e.date).toLocaleDateString()} at ${escapeHtml(e.time)} <br>
+                                📍 <strong>Venue:</strong> ${escapeHtml(e.location)} <br>
+                                🎟 <strong>Seat Allocation Status:</strong> ${remainingSeats} / ${e.capacity} Seats Free
+                            </div>
+                            <p style="color:#475569; font-size:15px; line-height:1.5;">${escapeHtml(e.description)}</p>
+                            ${actionButton}
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                feedContainer.innerHTML = `
+                    <div class="error-box">
+                        <strong>⚠ Critical Error:</strong> Failed to establish communications with the central API backend pipeline.
+                        <br><small>Make sure your backend server is running on ${API_BASE}.</small>
+                    </div>`;
+            }
+        }
+
+        // ========================================================
+        // MODULE: RESERVE TICKET
+        // ========================================================
+        async function reserveTicket(eventId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/events/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ eventId })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('✨ Success: ' + data.message);
+                    loadPublicDiscoveryFeed();
+                    loadPersonalItinerary();
+                } else {
+                    alert('❌ Registration Guard Notice: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network fault trying to register parameters.');
+            }
+        }
+
+        // ========================================================
+        // MODULE: PERSONAL ITINERARY (MY REGISTRATIONS)
+        // ========================================================
+        async function loadPersonalItinerary() {
+            const rosterContainer = document.getElementById('personal-roster-box');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/events/my-registrations`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const bookings = await res.json();
+
+                if (!Array.isArray(bookings) || bookings.length === 0) {
+                    rosterContainer.innerHTML = `
+                        <div style="color:#64748b; font-size:14px; text-align:center; padding:20px; border:1px solid #e2e8f0; border-radius:8px; background:white;">
+                            You haven't reserved any event tickets yet. Explore our upcoming events list!
+                        </div>`;
+                    return;
+                }
+
+                rosterContainer.innerHTML = bookings.map(b => `
+                    <div class="reg-item">
+                        <div>
+                            <strong style="font-size:15px;">${escapeHtml(b.eventId.title)}</strong><br>
+                            <small style="color:#64748b;">📅 ${new Date(b.eventId.date).toLocaleDateString()} • 📍 ${escapeHtml(b.eventId.location)}</small>
+                        </div>
+                        <button class="btn-action btn-cancel" onclick="cancelTicket('${b._id}')">
+                            Cancel Pass
+                        </button>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                rosterContainer.innerHTML = `<div class="error-box">Failed to load your tickets. Please try again later.</div>`;
+            }
+        }
+
+        // ========================================================
+        // MODULE: CANCEL TICKET
+        // ========================================================
+        async function cancelTicket(registrationId) {
+            if (!confirm('Are you sure you want to release your reserved seat? This will instantly allow other attendees to take this spot.')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/events/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ registrationId })
+                });
+
+                if (res.ok) {
+                    alert('Ticket registration successfully dropped.');
+                    loadPublicDiscoveryFeed();
+                    loadPersonalItinerary();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Unable to cancel this ticket.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network fault clearing reservation.');
+            }
+        }
+
+        // ========================================================
+        // MODULE: LOGOUT
+        // ========================================================
+        function logout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+
+        // ========================================================
+        // BOOT THE APP
+        // ========================================================
+        initSession();
+    </script>
+</body>
+</html>
