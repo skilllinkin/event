@@ -93,6 +93,7 @@
                     <input type="date" id="date" required>
                     <input type="text" id="time" placeholder="Event Time (e.g. 10:00 AM - 1:00 PM)" required>
                     <input type="text" id="location" placeholder="Venue Location Address" required>
+                    <input type="text" id="imageUrl" placeholder="Image URL (https://...)">
                     <input type="number" id="capacity" min="1" placeholder="Target Seating Capacity Limit" required>
 
                     <label style="font-size: 13px; font-weight: 600; color: #475569;">Lifecycle State (FR-06)</label>
@@ -141,7 +142,7 @@
         const role  = localStorage.getItem('role');
 
         if (!token || role !== 'admin') {
-            alert('Access Denied: Requires operational admin authentication.');
+    // Send unauthorized visitors to the admin login, not the attendee login
             window.location.href = 'auth.html';
         }
 
@@ -240,6 +241,7 @@
                 date:        document.getElementById('date').value,
                 time:        document.getElementById('time').value,
                 location:    document.getElementById('location').value,
+                imageUrl:    document.getElementById('imageUrl').value.trim(),
                 capacity:    parseInt(document.getElementById('capacity').value, 10),
                 status:      document.getElementById('status').value
             };
@@ -347,6 +349,7 @@
             document.getElementById('date').value           = new Date(e.date).toISOString().split('T')[0];
             document.getElementById('time').value           = e.time;
             document.getElementById('location').value       = e.location;
+            document.getElementById('imageUrl').value       = e.imageUrl || '';
             document.getElementById('capacity').value       = e.capacity;
             document.getElementById('status').value         = e.status;
 

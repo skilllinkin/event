@@ -8,7 +8,12 @@ const eventSchema = new mongoose.Schema({
     location: { type: String, required: true },
     capacity: { type: Number, required: true },
     registeredCount: { type: Number, default: 0 },
-    status: { type: String, enum: ['Draft', 'Published', 'Completed', 'Cancelled'], default: 'Draft' }
+    status: { 
+        type: String, 
+        enum: ['Draft', 'Published', 'Completed', 'Cancelled'], 
+        default: 'Draft' 
+    },
+    imageUrl: { type: String, default: '' }   // ✅ moved inside the schema
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);

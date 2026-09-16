@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nowshera Events Co. - Sign In</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+        }
+
+        .brand-header {
+            background: #0f172a;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .brand-header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .brand-header p {
+            margin: 6px 0 0 0;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .tabs button.active {
+            background: white;
+            color: #2563eb;
+            box-shadow: inset 0 -3px 0 #2563eb;
+        }
+        .tabs button:hover:not(.active) {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .form-body {
+            padding: 28px 24px 24px 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        input, select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .btn-submit:hover:not(:disabled) { background: #1d4ed8; }
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        .alert.show { display: block; }
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .helper-text {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 16px;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .back-link:hover { color: #2563eb; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+
+        <div class="brand-header">
+            <h1>🎟️ Nowshera Events Co.</h1>
+            <p>Attendee & Operations Portal</p>
+        </div>
+
+        <div class="tabs">
+            <button id="tab-login-btn"   class="active" onclick="switchTab('login')">Sign In</button>
+            <button id="tab-register-btn"            onclick="switchTab('register')">Create Account</button>
+        </div>
+
+        <div class="form-body">
+
+            <!-- Global status alerts -->
+            <div id="alert-box" class="alert"></div>
+
+            <!-- LOGIN PANEL -->
+            <div id="panel-login" class="tab-panel active">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-submit" id="login-submit-btn">Sign In</button>
+                    <p class="helper-text">Don't have an account? <a href="#" onclick="switchTab('register'); return false;" style="color:#2563eb; font-weight:700; text-decoration:none;">Create one</a></p>
+                </form>
+            </div>
+
+            <!-- REGISTER PANEL -->
+            <div id="panel-register" class="tab-panel">
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" placeholder="Jane Doe" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email Address</label>
+                        <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" placeholder="Min. 6 characters" minlength="6" required autocomplete="new-password">
+                    </div>
+                   
+                    <button type="submit" class="btn-submit" id="register-submit-btn">Create Account</button>
+                    <p class="helper-text">Already registered? <a href="#" onclick="switchTab('login'); return false;" style="color:#2563eb; font-weight:700; text-decoration:none;">Sign in</a></p>
+                </form>
+            </div>
+
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Events Feed</a>
+
+    </div>
+
+    <script>
+        // ========================================================
+        // CONFIG
+        // ========================================================
+        const API_BASE = ''; // Same origin — works locally and on Render
+
+        // ========================================================
+        // DOM HELPERS
+        // ========================================================
+        const alertBox = document.getElementById('alert-box');
+
+        function showAlert(message, type = 'error') {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+        }
+
+        function hideAlert() {
+            alertBox.className = 'alert';
+            alertBox.textContent = '';
+        }
+
+        // ========================================================
+        // TAB SWITCHING
+        // ========================================================
+        function switchTab(tab) {
+            hideAlert();
+
+            const loginBtn    = document.getElementById('tab-login-btn');
+            const registerBtn = document.getElementById('tab-register-btn');
+            const loginPanel    = document.getElementById('panel-login');
+            const registerPanel = document.getElementById('panel-register');
+
+            if (tab === 'login') {
+                loginBtn.classList.add('active');
+                registerBtn.classList.remove('active');
+                loginPanel.classList.add('active');
+                registerPanel.classList.remove('active');
+            } else {
+                registerBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                registerPanel.classList.add('active');
+                loginPanel.classList.remove('active');
+            }
+        }
+
+        // ========================================================
+        // REGISTER HANDLER
+        // ========================================================
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const submitBtn = document.getElementById('register-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account…';
+
+            const payload = {
+                name:     document.getElementById('register-name').value.trim(),
+                email:    document.getElementById('register-email').value.trim().toLowerCase(),
+                password: document.getElementById('register-password').value
+    // No role field — server always assigns 'attendee'
+                };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showAlert('✅ Account created successfully! You can now sign in.', 'success');
+                    document.getElementById('register-form').reset();
+
+                    // Auto-fill the login email for convenience
+                    document.getElementById('login-email').value = payload.email;
+
+                    // Bounce to login tab after a beat
+                    setTimeout(() => switchTab('login'), 1200);
+                } else {
+                    showAlert(data.error || 'Registration failed. Please try again.');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('Network error — could not reach the server.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+
+        // ========================================================
+        // LOGIN HANDLER
+        // ========================================================
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const submitBtn = document.getElementById('login-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing in…';
+
+            const payload = {
+                email:    document.getElementById('login-email').value.trim().toLowerCase(),
+                password: document.getElementById('login-password').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showAlert(data.error || 'Invalid credentials.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign In';
+                    return;
+                }
+
+                // Persist session tokens
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role',  data.role);
+                localStorage.setItem('name',  data.name);
+
+                // If the account is an admin, also store an adminToken alias
+                // (admin.html checks this first, then falls back to `token`)
+                if (data.role === 'admin') {
+                    localStorage.setItem('adminToken', data.token);
+                }
+
+                showAlert(`✅ Welcome back, ${data.name}! Redirecting…`, 'success');
+
+                // Role-based redirect
+                setTimeout(() => {
+                    if (data.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 700);
+
+            } catch (err) {
+                console.error(err);
+                showAlert('Network error — could not reach the server.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        });
+
+        // ========================================================
+        // AUTO-REDIRECT IF ALREADY LOGGED IN
+        // ========================================================
+        (function checkExistingSession() {
+            const token = localStorage.getItem('token');
+            const role  = localStorage.getItem('role');
+
+            if (token && role) {
+                // Optional: auto-bounce if already signed in
+                // Uncomment the block below if you want automatic redirect
+                /*
+                if (role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+                */
+            }
+        })();
+        // ========================================================
+// FIX: Reset form state when navigating back to this page
+// (Handles bfcache restore after login redirect)
+// ========================================================
+        window.addEventListener('pageshow', (event) => {
+    // Reset the login button no matter what state it's in
+        const loginBtn = document.getElementById('login-submit-btn');
+        if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+        }
+
+    // Reset the register button too
+    const registerBtn = document.getElementById('register-submit-btn');
+    if (registerBtn) {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Create Account';
+            }
+
+    // Clear any "Signing in..." alert messages
+    hideAlert();
+
+    // Hide tab panels except active
+    // (Ensures tab state is clean after back navigation)
+
+    // Optional: If user is already logged in, redirect them
+    // instead of showing the login form again
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');
+
+        if (token && role) {
+            if (role === 'admin') {
+            window.location.replace('admin.html');
+            } else {
+            window.location.replace('index.html');
+            }
+        }
+        });
+    </script>
+</body>
+</html>
